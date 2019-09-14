@@ -8,15 +8,29 @@ function _get_header(name, headers) {
   return found && found.value;
 }
 
-function _init_query(options) {
-  const { before, after } = options;
+function _init_query({after, before, isUnread, subject, from, to}) {
+  
+
   let query = "";
   if (before) {
-    query += `before:${before.getFullYear()}/${before.getMonth()}/${before.getDate()} `;
+    if(typeof before=='string'){
+      before = new Date(Date.parse(before));
+    }
+    query += `before:${before.getFullYear()}/${before.getMonth()+1}/${before.getDate()} `;
   }
   if (after) {
-    query += `after:${after.getFullYear()}/${after.getMonth()}/${after.getDate()} `;
+    if(typeof after=='string'){
+      after = new Date(Date.parse(after));
+    }
+    query += `after:${after.getFullYear()}/${after.getMonth()+1}/${after.getDate()} `;
+    console.log( '#################### @@@@@@@@@@@@'); console.log(query);
   }
+
+  if(isUnread) query += `is:unread `;
+  if(from) query += `from:${from} `;
+  if(subject) query += `subject:${subject} `;
+  if(to) query += `to:${to} `;
+
   query = query.trim();
   return query;
 }
@@ -26,19 +40,24 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
 
   const query = _init_query(options);
   // Load client secrets from a local file.
+  console.log(credentials_json);
   const content = fs.readFileSync(credentials_json);
+  console.log('@@@@@', JSON.parse(content));
   const oAuth2Client = await gmail.authorize(JSON.parse(content), token_path);
   const gmail_client = google.gmail({ version: "v1", oAuth2Client });
-  const gmail_emails = await gmail.get_recent_email(
+  var gmail_emails = await gmail.get_recent_email(
     gmail_client,
     oAuth2Client,
-    query
+    query,
+    options.limit?options.limit:1
   );
+
   for (const gmail_email of gmail_emails) {
     const email = {
       from: _get_header("From", gmail_email.payload.headers),
       subject: _get_header("Subject", gmail_email.payload.headers),
-      receiver: _get_header("Delivered-To", gmail_email.payload.headers)
+      receiver: _get_header("Delivered-To", gmail_email.payload.headers),
+      id: gmail_email.id
     };
     if (options.include_body) {
       let email_body = { html: "", text: "" };

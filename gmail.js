@@ -106,14 +106,16 @@ async function list_labels(gmail, oauth2Client) {
  * can be used to indicate the authenticated user.
  * @param  {String} query String used to filter the Messages listed.
  */
-async function list_messages(gmail, oauth2Client, query, labelIds) {
+async function list_messages(gmail, oauth2Client, query, labelIds, limit=10) {
   const messages = await new Promise((resolve, reject) => {
     gmail.users.messages.list(
       {
         userId: "me",
         q: query,
         auth: oauth2Client,
-        labelIds: labelIds
+        labelIds: labelIds,
+        maxResults: limit
+
       },
       async function(err, res) {
         if (err) {
@@ -121,7 +123,7 @@ async function list_messages(gmail, oauth2Client, query, labelIds) {
         } else {
           let result = res.data.messages || [];
           let { nextPageToken } = res.data;
-          while (nextPageToken) {
+          while (nextPageToken && result.length<limit) {
             const resp = await new Promise((resolve, reject) => {
               gmail.users.messages.list(
                 {
@@ -158,7 +160,7 @@ async function list_messages(gmail, oauth2Client, query, labelIds) {
  * @param {google.auth.OAuth2} oauth2Client An authorized OAuth2 client.
  * @param {String} query String used to filter the Messages listed.
  */
-async function get_recent_email(gmail, oauth2Client, query = "") {
+async function get_recent_email(gmail, oauth2Client, query = "", limit=1) {
   try {
     const labels = await list_labels(gmail, oauth2Client);
     const inbox_label_id = [labels.find(l => l.name === "INBOX").id];
@@ -166,7 +168,8 @@ async function get_recent_email(gmail, oauth2Client, query = "") {
       gmail,
       oauth2Client,
       query,
-      inbox_label_id
+      inbox_label_id,
+      limit
     );
     let promises = [];
     for (let message of messages) {
