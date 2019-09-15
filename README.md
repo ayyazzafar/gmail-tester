@@ -1,30 +1,28 @@
-# gmail-tester
+# az-gmail-tester
 
-[![npm version](https://badge.fury.io/js/gmail-tester.svg)](https://www.npmjs.com/package/gmail-tester)
-<span class="badge-npmdownloads"><a href="https://npmjs.org/package/badges" title="View this project on NPM"><img src="https://img.shields.io/npm/dm/badges.svg" alt="NPM downloads" /></a></span>
+[![npm version](https://badge.fury.io/js/az-gmail-tester.svg)](https://www.npmjs.com/package/az-gmail-tester)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A simple Node.js Gmail client which checks/returns email message(s) straight from any Gmail-powered account (both private and company).<br/>
 There are two main functionalities this library provides:<br>
 
 1.  `check_inbox()`: Polls a mailbox for a given amount of time. At the end of the operation, the desired message is returned (if found).
-2.  `get_messages()`: Can be used to perform various assertions on the email objects (see example [below](https://github.com/levz0r/gmail-tester/blob/master/README.md#using-get_messages-to-assert-email-body-using-cypress)).
-
-P.S, I have written a [story](https://medium.com/@levz0r/how-to-poll-a-gmail-inbox-in-cypress-io-a4286cfdb888) on medium, how using [Cypress](https://cypress.io), we are testing our user registration process at Tastewise.
+2.  `get_messages()`: Can be used to perform various assertions on the email objects (see example [below](https://github.com/ayyazzzafar/gmail-tester/blob/master/README.md#using-get_messages-to-assert-email-body-using-cypress)).
+3. `send()`: Sends message using your gmail account
 
 # Usage
 
 1.  Install using `npm`:
 
 ```
-npm install --save-dev gmail-tester
+npm install --save-dev az-gmail-tester
 ```
 
 2.  Save the Google Cloud Platform OAuth2 Authentication file named `credentials.json` inside an accessible directory (see instructions [below](https://github.com/levz0r/gmail-tester/blob/master/README.md#how-to-get-credentialsjson)).
 3.  In terminal, run the following command:
 
 ```
-node <node_modules>/gmail-tester/init.js <path-to-credentials.json> <path-to-token.json> <target-email>
+node node_modules/az-gmail-tester/init.js cypress/support/gmail/credentials.json cypress/support/gmail/token.json <target-email>
 ```
 
 `<path-to-credentials.json>` Is the path to OAuth2 Authentication file.<br/>

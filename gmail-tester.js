@@ -8,28 +8,28 @@ function _get_header(name, headers) {
   return found && found.value;
 }
 
-function _init_query({after, before, isUnread, subject, from, to}) {
-  
+function _init_query({ after, before, isUnread, subject, from, to }) {
+
 
   let query = "";
   if (before) {
-    if(typeof before=='string'){
+    if (typeof before == 'string') {
       before = new Date(Date.parse(before));
     }
-    query += `before:${before.getFullYear()}/${before.getMonth()+1}/${before.getDate()} `;
+    query += `before:${before.getFullYear()}/${before.getMonth() + 1}/${before.getDate()} `;
   }
   if (after) {
-    if(typeof after=='string'){
+    if (typeof after == 'string') {
       after = new Date(Date.parse(after));
     }
-    query += `after:${after.getFullYear()}/${after.getMonth()+1}/${after.getDate()} `;
-    console.log( '#################### @@@@@@@@@@@@'); console.log(query);
+    query += `after:${after.getFullYear()}/${after.getMonth() + 1}/${after.getDate()} `;
+    console.log('#################### @@@@@@@@@@@@'); console.log(query);
   }
 
-  if(isUnread) query += `is:unread `;
-  if(from) query += `from:${from} `;
-  if(subject) query += `subject:${subject} `;
-  if(to) query += `to:${to} `;
+  if (isUnread) query += `is:unread `;
+  if (from) query += `from:${from} `;
+  if (subject) query += `subject:${subject} `;
+  if (to) query += `to:${to} `;
 
   query = query.trim();
   return query;
@@ -49,7 +49,7 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
     gmail_client,
     oAuth2Client,
     query,
-    options.limit?options.limit:1
+    options.limit ? options.limit : 1
   );
 
   for (const gmail_email of gmail_emails) {
@@ -166,4 +166,32 @@ async function get_messages(credentials_json, token_path, options) {
   }
 }
 
-module.exports = { check_inbox, get_messages };
+async function send(credentials_json, token_path, options) {
+  try {
+    return  _send(credentials_json, token_path, options);
+     
+  } catch (err) {
+    console.log("[gmail] Error:", err);
+  }
+}
+
+async function _send(credentials_json, token_path, {
+  to,from, subject, body
+}) {
+
+
+  // Load client secrets from a local file.
+  const content = fs.readFileSync(credentials_json);
+
+  const oAuth2Client = await gmail.authorize(JSON.parse(content), token_path);
+  const gmail_client = google.gmail({ version: "v1", oAuth2Client });
+  return  gmail.send(
+    gmail_client,
+    oAuth2Client,
+    to, from, subject, body
+  );
+
+
+}
+
+module.exports = { check_inbox, get_messages, send };

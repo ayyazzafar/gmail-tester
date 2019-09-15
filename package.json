@@ -12,7 +12,7 @@
         "automation",
         "polling"
     ],
-    "author": "Lev Gelfenbuim",
+    "author": "Ayyaz Zafar",
     "license": "MIT",
     "dependencies": {
         "googleapis": "^42.0.0"

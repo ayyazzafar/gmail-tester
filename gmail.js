@@ -2,9 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const readline = require("readline");
 const { google } = require("googleapis");
-
 // If modifying these scopes, delete token.json.
-const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
+const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
@@ -198,7 +197,51 @@ async function get_recent_email(gmail, oauth2Client, query = "", limit=1) {
   } catch (error) {}
 }
 
+
+/**
+ * send email from your Gmail account
+ *
+ * @param {google.auth.OAuth2} oauth2Client An authorized OAuth2 client.
+ */
+async function send(gmail, oauth2Client, to, from,  subject, body) {
+
+  return await new Promise((resolve, reject) => {
+    gmail.users.messages.send(
+      {
+        userId: "me",
+        resource: {
+          raw: makeBody(to, from, subject, body)
+        },
+        auth: oauth2Client
+      },
+      async function(err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+
+}
+
+function makeBody(to, from, subject, message) {
+  var str = ["Content-Type: text/plain; charset=\"UTF-8\"\n",
+      "MIME-Version: 1.0\n",
+      "Content-Transfer-Encoding: 7bit\n",
+      "to: ", to, "\n",
+      "from: ", from, "\n",
+      "subject: ", subject, "\n\n",
+      message
+  ].join('');
+
+  str = new Buffer(str).toString("base64").replace(/\+/g, '-').replace(/\//g, '_');
+  return str;
+}
+
 module.exports = {
   authorize,
-  get_recent_email
+  get_recent_email,
+  send
 };
